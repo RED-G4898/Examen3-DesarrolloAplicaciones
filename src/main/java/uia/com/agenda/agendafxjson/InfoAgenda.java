@@ -11,7 +11,8 @@ import java.util.List;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Agenda.class, name = "agenda"),
         @JsonSubTypes.Type(value = Contacto.class, name = "contacto"),
-        @JsonSubTypes.Type(value = Recordatorio.class, name = "recordatorio")
+        @JsonSubTypes.Type(value = Recordatorio.class, name = "recordatorio"),
+        @JsonSubTypes.Type(value = Evento.class, name = "evento")
 })
 
 public class InfoAgenda {
@@ -75,6 +76,21 @@ public class InfoAgenda {
                 this.getItems().get(i).getItems().add(new Recordatorio(recordatorioActualDTO));
         }
 
+    }
+
+    public void agregaEvento(String contacto, EventoDTO eventoActualDTO)
+    {
+
+        for(int i=0; i<this.getItems().size(); i++)
+        {
+            if(this.getItems().get(i).getName().contentEquals(contacto)){
+                for (int j=0; j<this.getItems().get(i).getItems().size(); j++)
+                {
+                    if(this.getItems().get(i).getItems().get(j).getName().contentEquals(eventoActualDTO.getName()))
+                        this.getItems().get(i).getItems().get(j).getItems().add(new Evento(eventoActualDTO));
+                }
+            }
+        }
     }
 
     public void agrega(ContactoDTO contactoActualDTO)

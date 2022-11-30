@@ -28,6 +28,9 @@ public class AgendaFXController implements Initializable {
     @FXML
     private Label fechaRecordatorioLabel;
 
+    @FXML
+    private Label fechaEventoLabel;
+
     // Reference to the main application.
     private AgendaFXApplication mainApp;
 
@@ -35,35 +38,63 @@ public class AgendaFXController implements Initializable {
 
     public ObservableList<RecordatorioDTO> listRecordatorios = FXCollections.observableArrayList();
 
+    public ObservableList<EventoDTO> listEventos = FXCollections.observableArrayList();
+
     @FXML
     private TableColumn fechaRecordatorioCol;
     @FXML
+    private TableColumn fechaEventoCol;
+    @FXML
     private Label fechaLabelRecordatorio;
+    @FXML
+    private Label fechaLabelEvento;
     @FXML
     private Button nuevoBoton;
     @FXML
     private TableColumn fechaRecordatorioRecordatorioCol;
     @FXML
+    private TableColumn fechaEventoEventoCol;
+    @FXML
     private Button nuevoBotonRecordatorio;
     @FXML
-    private TableView tableRecordatorio;
+    private Button nuevoBotonEvento;
+    @FXML
+    private TableView<RecordatorioDTO> tableRecordatorio;
+    @FXML
+    private TableView tableEvento;
     @FXML
     private TableColumn nameRecordatorioCol;
     @FXML
+    private TableColumn nameEventoCol;
+    @FXML
     private Label nameLabelRecordatorio;
+    @FXML
+    private Label nameLabelEvento;
     @FXML
     private Label fechaRecordatorioLabelRecordatorio;
     @FXML
+    private Label fechaEventoLabelEvento;
+    @FXML
     private TableColumn tipoRecordatorioCol;
     @FXML
+    private TableColumn tipoEventoCol;
+    @FXML
     private Label tipoLabelRecordatorio;
+    @FXML
+    private Label tipoLabelEvento;
     private Agenda miAgenda;
     @FXML
     private Label nombreContactoActual;
+    @FXML
+    private Label nombreRecordatorioActual;
+    @FXML
+    private Label nombreEventoActual;
     private ContactoDTO contactoActualDTO;
-    private RecordatorioDTO recordatorioActualDTO=null;
+    private RecordatorioDTO recordatorioActualDTO;
+    private EventoDTO eventoActualDTO;
     private ContactoEdicionDialogoController controllerContacto = null;
     private RecordatorioEdicionDialogoController  controllerRecordatorio = null;
+    private EventoEdicionDialogoController controllerEvento = null;
 
 
     @Override
@@ -130,20 +161,39 @@ public class AgendaFXController implements Initializable {
 
 
 
-    private void showRecordatorioDetails(RecordatorioDTO recordatorio) {
-        if (recordatorio != null) {
-            // Fill the labels with info from the recordatorio object.
+    private void showRecordatorioDetails(RecordatorioDTO recordatorioDTO) {
+        if (recordatorioDTO != null) {
+            // Fill the labels with info from the recordatorioDTO object.
             nombreContactoActual.setText(this.contactoActualDTO.getname());
-            tipoLabelRecordatorio.setText(recordatorio.getTipo());
-            nameLabelRecordatorio.setText(recordatorio.getName());
-            fechaRecordatorioLabelRecordatorio.setText(recordatorio.getFechaRecordatorio());
-            fechaLabelRecordatorio.setText(recordatorio.getFecha());
+            tipoLabelRecordatorio.setText(recordatorioDTO.getTipo());
+            nameLabelRecordatorio.setText(recordatorioDTO.getName());
+            fechaRecordatorioLabelRecordatorio.setText(recordatorioDTO.getFechaRecordatorio());
+            fechaLabelRecordatorio.setText(recordatorioDTO.getFecha());
+            this.mainApp.setRecordatorioActual(recordatorioDTO);
         } else {
             // Recordatorio is null, remove all the text.
             tipoLabelRecordatorio.setText("");
             nameLabelRecordatorio.setText("");
             fechaRecordatorioLabelRecordatorio.setText("");
             fechaLabelRecordatorio.setText("");
+        }
+    }
+
+    private void showEventoDetails(EventoDTO evento) {
+        if (evento != null) {
+            // Fill the labels with info from the recordatorio object.
+            nombreRecordatorioActual.setText(this.recordatorioActualDTO.getname());
+            tipoLabelEvento.setText(evento.getTipo());
+            nameLabelEvento.setText(evento.getName());
+            fechaEventoLabelEvento.setText(evento.getFechaEvento());
+            fechaLabelEvento.setText(evento.getFecha());
+            this.mainApp.setEventoActual(evento);
+        } else {
+            // Recordatorio is null, remove all the text.
+            tipoLabelEvento.setText("");
+            nameLabelEvento.setText("");
+            fechaEventoLabelEvento.setText("");
+            fechaLabelEvento.setText("");
         }
     }
 
@@ -205,7 +255,42 @@ public class AgendaFXController implements Initializable {
             this.miAgenda.agregaRecordatorio(this.contactoActualDTO.getName(), this.controllerRecordatorio.getRecordatorioActualDTO());
             this.serializa();
             this.controllerRecordatorio.limpiaFX();
-            //listRecordatorios.add(this.controllerRecordatorio.getRecordatorioActualDTO());
+            listRecordatorios.add(this.controllerRecordatorio.getRecordatorioActualDTO());
+        }
+    }
+
+    @FXML
+    public void handleEditRecordatorio(ActionEvent actionEvent) throws IOException {
+        RecordatorioDTO selectedRecordatorioDTO = tableRecordatorio.getSelectionModel().getSelectedItem();
+
+        if (selectedRecordatorioDTO != null) {
+            boolean okClicked = mainApp.showRecordatorioEdicionDialogo();
+            if (okClicked) {
+                showRecordatorioDetails(selectedRecordatorioDTO);
+            }
+
+        } else {
+            // Nothing selected.
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.initOwner(mainApp.getPrimaryStage());
+            alert.setTitle("No Selection");
+            alert.setHeaderText("No Recordatorio Selected");
+            alert.setContentText("Please select a person in the table.");
+
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
+    public void handleNewEvento(ActionEvent actionEvent) throws IOException {
+        this.eventoActualDTO = new EventoDTO();
+        boolean okClicked = mainApp.showEventoEdicionDialogo();
+        if (okClicked) {
+            this.recordatorioActualDTO.getItemsDTO().add(this.controllerEvento.getEventoActualDTO());
+            this.miAgenda.agregaEvento(this.recordatorioActualDTO.getName(), this.controllerEvento.getEventoActualDTO());
+            this.serializa();
+            this.controllerEvento.limpiaFX();
+            listEventos.add(this.controllerEvento.getEventoActualDTO());
         }
     }
 
@@ -232,6 +317,11 @@ public class AgendaFXController implements Initializable {
         this.controllerContacto=controllerContacto;
     }
 
+    public void setControllerEvento(EventoEdicionDialogoController controllerEvento)
+    {
+        this.controllerEvento=controllerEvento;
+    }
+
     public void setContactoActual(ContactoDTO contactoDTO)
     {
         this.contactoActualDTO=contactoDTO;
@@ -247,6 +337,58 @@ public class AgendaFXController implements Initializable {
                         nombreContactoActual.setText(contactoActualDTO.getName());
                         this.listRecordatorios = contactoActualDTO.getItemsDTO();
                         tableRecordatorio.setItems(listRecordatorios);
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    // Correct recordatorioActual() method
+    public void setRecordatorioActual(RecordatorioDTO recordatorioDTO)
+    {
+        this.recordatorioActualDTO=recordatorioDTO;
+
+        for(int i=0; i<this.listRecordatorios.size(); i++)
+        {
+            if(this.recordatorioActualDTO == this.listRecordatorios.get(i))
+            {
+                for (int j = 0; j < miAgenda.getItems().size(); j++)
+                {
+                    if(miAgenda.getItems().get(j).getName().contentEquals(contactoActualDTO.getName()))
+                    {
+                        for (int k = 0; k < miAgenda.getItems().get(j).getItems().size(); k++)
+                        {
+                            if(miAgenda.getItems().get(j).getItems().get(k).getName().contentEquals(recordatorioActualDTO.getName()))
+                            {
+                                nombreRecordatorioActual.setText(recordatorioActualDTO.getName());
+                                this.listEventos = recordatorioActualDTO.getItemsDTO();
+                                tableEvento.setItems(listEventos);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    public void setEventoActual(EventoDTO eventoDTO)
+    {
+        this.eventoActualDTO=eventoDTO;
+
+        for(int i=0; i<this.listEventos.size(); i++)
+        {
+            if(this.eventoActualDTO == this.listEventos.get(i))
+            {
+                for (int j = 0; j < miAgenda.getItems().size(); j++)
+                {
+                    if(miAgenda.getItems().get(j).getName().contentEquals(eventoActualDTO.getName()))
+                    {
+                        nombreEventoActual.setText(eventoActualDTO.getName());
                         break;
                     }
                 }

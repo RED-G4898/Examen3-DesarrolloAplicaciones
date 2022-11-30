@@ -29,6 +29,12 @@ public class AgendaFXApplication extends Application {
     private RecordatorioEdicionDialogoController  controllerRecordatorio = null;
     private Stage dialogStageRecordatorio = null;
     private FXMLLoader loaderRecordatorio = null;
+    private EventoEdicionDialogoController  controllerEvento = null;
+    private Stage dialogStageEvento = null;
+    private FXMLLoader loaderEvento = null;
+    private RecordatorioDTO recordatorioActual=null;
+    private EventoDTO eventoActual=null;
+
 
     public  Window getPrimaryStage() {
         return this.primaryStage;
@@ -142,6 +148,43 @@ public class AgendaFXApplication extends Application {
         }
     }
 
+    public boolean showEventoEdicionDialogo() {
+        try {
+            if(this.dialogStageEvento == null) {
+                // Load the fxml file and create a new stage for the popup dialog.
+                this.loaderEvento = new FXMLLoader();
+                this.loaderEvento.setLocation(AgendaFXApplication.class.getResource("EventoEdicionDialogo.fxml"));
+                AnchorPane page = (AnchorPane) this.loaderEvento.load();
+
+                // Create the dialog Stage.
+                this.dialogStageEvento = new Stage();
+                this.dialogStageEvento.setTitle("Edición de EventoOld");
+                this.dialogStageEvento.initModality(Modality.WINDOW_MODAL);
+                this.dialogStageEvento.initOwner(primaryStage);
+                Scene scene = new Scene(page);
+                this.dialogStageEvento.setScene(scene);
+            }
+
+            // Set the newEventoOld into the controller.
+            if(this.controllerEvento == null)
+            {
+                this.controllerEvento = this.loaderEvento.getController();
+                this.controllerAgenda.setControllerEvento(this.controllerEvento);
+            }
+            this.controllerEvento.setDialogStage(this.dialogStageEvento);
+            this.controllerEvento.setEventos(this.contactoActual);
+
+            // Show the dialog and wait until the user closes it
+            this.dialogStageEvento.showAndWait();
+
+            return this.controllerEvento.isOkClicked();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 
     /**
      * Shows the contacto overview inside the root layout.
@@ -196,5 +239,17 @@ public class AgendaFXApplication extends Application {
     {
         this.contactoActual = contactoDTO;
         this.controllerAgenda.setContactoActual(contactoDTO);
+    }
+
+    public void setRecordatorioActual(RecordatorioDTO recordatorioOld)
+    {
+        this.recordatorioActual = recordatorioOld;
+        this.controllerAgenda.setRecordatorioActual(recordatorioOld);
+    }
+
+    public void setEventoActual(EventoDTO eventoOld)
+    {
+        this.eventoActual = eventoOld;
+        this.controllerAgenda.setEventoActual(eventoOld);
     }
 }

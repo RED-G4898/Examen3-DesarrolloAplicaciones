@@ -1,9 +1,16 @@
 package uia.com.agenda.agendafxjson;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
+import java.util.List;
+
 public class RecordatorioDTO extends InfoAgenda{
 
     private String tipo;
     private String fechaRecordatorio;
+
+    private ObservableList<EventoDTO> itemsDTO = FXCollections.observableArrayList();
 
 
     public RecordatorioDTO(String tipo, String name, String fechaRecordatorio, String fecha) {
@@ -48,5 +55,9 @@ public class RecordatorioDTO extends InfoAgenda{
 
     public void setname(String text) {
         super.setName(text);
+    }
+
+    public ObservableList<EventoDTO> getItemsDTO() {
+        return itemsDTO;
     }
 }

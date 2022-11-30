@@ -8,7 +8,7 @@ import java.util.List;
 
 public class ContactoDTO extends Contacto{
 
-    private ObservableList<RecordatorioDTO> itemsDTO = FXCollections.observableArrayList();;
+    private ObservableList<RecordatorioDTO> itemsDTO = FXCollections.observableArrayList();
 
     public ContactoDTO(String tipo, String name, String fechaRecordatorio, String fecha) {
         super(-1, name, fecha, "", "");
